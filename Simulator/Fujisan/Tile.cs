@@ -1,11 +1,19 @@
 ﻿using System;
 namespace Fujisan
 {
+    /***************
+     * A Tile class for the board pieces. The upper-left and lower-right
+     * numbers match, as do the upper-right and lower-left.
+     */
     public class Tile
     {
 
+        // Records the tile values for each of the four corners
         public int[,] values;
 
+        /**********
+         * Record the two numbers into the values storage
+         */
         public Tile(int first, int second)
         {
             values = new int[2,2];
@@ -15,6 +23,9 @@ namespace Fujisan
             values[1,0] = second;
          }
 
+        /*********
+         * Swap the values. Rotate left and rotate right are equivalent.
+         */
         public void Rotate() {
             int temp = values[0,0];
             int temp2 = values[0,1];
@@ -24,6 +35,9 @@ namespace Fujisan
             values[1,0] = temp;
         }
 
+        /********
+         * Display the Tile to the console
+         */
         public override string ToString() {
             return "" + values[0,0] + values[0,1] + "\n" +
                 values[1,0] + values[1,1];
