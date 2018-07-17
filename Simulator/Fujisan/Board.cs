@@ -134,6 +134,7 @@ namespace Fujisan
 
                         // Not on top
                         if (j != 6 || j != 7) {
+                        if (j != 6 && j != 7) {
                             for (int k = 1; k < 13; k++)
                             {
                                 if (k != j && pawns[i, k] != 1) {
