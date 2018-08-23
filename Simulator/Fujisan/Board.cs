@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace Fujisan
 {
+    public enum Setup {
+        DOMINO, COIN, ANYCOIN, RANDOM, HARDCODE
+    }
+
     /********
      * A Board class to represent a configuration of the game Fujisan, main
      * elements include the values for the spaces on the board and the 
@@ -18,7 +22,6 @@ namespace Fujisan
         public int length;    // number of steps to get to this board
 
         public Random random;
-        public static bool DOMINO = true; 
 
         /******
          * Empty constructor for cloning
@@ -31,13 +34,13 @@ namespace Fujisan
         /******
          * Creates a random starting board state
          */
-        public Board(Random random)
+        public Board(Random random, Setup s)
         {
             this.random = random;
             move = "START";
 
             values = new int[2, 14];
-            if (DOMINO)
+            if (s == Setup.DOMINO)
             {
 
                 // Make the 25 tiles matching domino distribution
@@ -81,16 +84,20 @@ namespace Fujisan
                 values[0, 7] = list[t].values[0, 0];
                 values[1, 7] = list[t].values[1, 0];
 
-            } else {
-                
+            }
+            else if (s == Setup.COIN)
+            {
+
                 // Make the coins for the piecepack
                 List<Byte>[] coins = new List<Byte>[4];
-                for (int i = 0; i < 4; i++) {
+                for (int i = 0; i < 4; i++)
+                {
                     coins[i] = new List<Byte>();
                 }
                 for (int i = 0; i < 6; i++)
                 {
-                    for (int j = 0; j < 4; j++) {
+                    for (int j = 0; j < 4; j++)
+                    {
                         coins[j].Add((byte)i);
                     }
                 }
@@ -115,35 +122,72 @@ namespace Fujisan
                         where--;
                     }
                 }
+            }
+            else if (s == Setup.ANYCOIN)
+            {
 
+                // Make the coins for the piecepack
+                List<Byte> coins = new List<Byte>();
+                for (int i = 0; i < 6; i++)
+                {
+                    for (int j = 0; j < 4; j++)
+                    {
+                        coins.Add((byte)i);
+                    }
+                }
 
+                // Shuffle the coins
+                Shuffle<Byte>(coins, random);
+
+                // Place the coins on the board, starting at the 
+                // right, and filling two from each type at a time
+                int where = 12;
+                for (int k = 0; k < 12; k++)
+                {
+                    for (int j = 0; j < 2; j++)
+                    {
+                        values[j, where] = coins[j + k * 2];
+                    }
+                    where--;
+                }
+
+            }
+            else if (s == Setup.HARDCODE)
+            {
                 // Initial board from Puzzle Four
                 // http://www.ludism.org/ppwiki/Fuji-san#Heading9
 
-                //values[0, 12] = 5;
-                //values[1, 12] = 4;
-                //values[0, 11] = 3;
-                //values[1, 11] = 5;
-                //values[0, 10] = 3;
-                //values[1, 10] = 0;
-                //values[0, 9] = 4;
-                //values[1, 9] = 1;
-                //values[0, 8] = 2;
-                //values[1, 8] = 0;
-                //values[0, 7] = 2;
-                //values[1, 7] = 0;
-                //values[0, 6] = 2;
-                //values[1, 6] = 1;
-                //values[0, 5] = 0;
-                //values[1, 5] = 3;
-                //values[0, 4] = 1;
-                //values[1, 4] = 3;
-                //values[0, 3] = 1;
-                //values[1, 3] = 4;
-                //values[0, 2] = 5;
-                //values[1, 2] = 4;
-                //values[0, 1] = 5;
-                //values[1, 1] = 2;                       
+                values[0, 12] = 5;
+                values[1, 12] = 4;
+                values[0, 11] = 3;
+                values[1, 11] = 5;
+                values[0, 10] = 3;
+                values[1, 10] = 0;
+                values[0, 9] = 4;
+                values[1, 9] = 1;
+                values[0, 8] = 2;
+                values[1, 8] = 0;
+                values[0, 7] = 2;
+                values[1, 7] = 0;
+                values[0, 6] = 2;
+                values[1, 6] = 1;
+                values[0, 5] = 0;
+                values[1, 5] = 3;
+                values[0, 4] = 1;
+                values[1, 4] = 3;
+                values[0, 3] = 1;
+                values[1, 3] = 4;
+                values[0, 2] = 5;
+                values[1, 2] = 4;
+                values[0, 1] = 5;
+                values[1, 1] = 2;
+            } else if (s == Setup.RANDOM) {
+                    
+                    for (int i = 0; i < 2; i++) {
+                        for (int j = 1; j < 13; j++) {
+                            values[i, j] = random.Next(0, 6);
+                        }
+                    }
             }
 
             // Place the pawns on the edges of the board
