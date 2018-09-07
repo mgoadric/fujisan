@@ -12,9 +12,10 @@ namespace Fujisan
         public static void Main(string[] args)
         {
             int TRIALS = 10;
-            int EXP = 50;
-            Setup setup = Setup.RANDOM;
+            int EXP = 100;
+            Setup setup = Setup.DOMINO;
 
+            List<int> hist = new List<int>();
             Random random = new Random();
 
             // Easy output for copying into a spreadsheet
@@ -31,6 +32,9 @@ namespace Fujisan
                 Parallel.For(0, EXP,
                    i =>
                    {
+                       // Total count of boards, for HashSet later
+                       int bcount = 0;
+
                        // Store all boards seen in found
                        HashSet<Board> found = new HashSet<Board>();
 
@@ -43,7 +47,7 @@ namespace Fujisan
                        Debug.WriteLine(start);
                        Debug.WriteLine("Starting:");
                        Debug.WriteLine(start + "\n");
-                       frontier.Add(start.length + start.Heuristic() + (0.1 * random.NextDouble()), start);
+                       frontier.Add(start.length + start.Heuristic() + (1e-12 * bcount), start);
 
                        // Keep searching the frontier until it is empty or
                        // a solution is found
@@ -73,6 +77,7 @@ namespace Fujisan
                                    {
                                        lensum += b.length;
                                        count++;
+                                       hist.Add(b.length);
                                    }
                                    break;
                                }
@@ -81,7 +86,8 @@ namespace Fujisan
                                // Add it to the frontier
                                if (!found.Contains(b) && !frontier.ContainsValue(b))
                                {
-                                   frontier.Add(b.length + b.Heuristic() + (0.1 * random.NextDouble()), b);
+                                   bcount++;
+                                   frontier.Add(b.length + b.Heuristic() + (1e-12 * bcount), b);
                                }
                                else
                                {
@@ -103,6 +109,9 @@ namespace Fujisan
                 Console.WriteLine(((float)count / EXP) +
                                   "\t" + ((float)dead / EXP) +
                                   "\t" + ((float)lensum / count));
+            }
+            foreach (int i in hist) {
+                Console.WriteLine(i);
             }
         }
     }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Fujisan
@@ -217,7 +217,7 @@ namespace Fujisan
             h += 1 - pawns[1, 6];
             h += 1 - pawns[0, 7];
             h += 1 - pawns[1, 7];
-            return Math.Max(0, h - (0.1 * random.NextDouble()));
+            return h;
         }
 
         /********
