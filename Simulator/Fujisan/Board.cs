@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Fujisan
@@ -42,16 +42,22 @@ namespace Fujisan
             values = new int[2, 14];
             if (s == Setup.DOMINO)
             {
-
-                // Make the 25 tiles matching domino distribution
+                
+                // Make the 20 tiles matching domino distribution
                 List<Tile> list = new List<Tile>();
                 for (int i = 0; i < 6; i++)
                 {
-                    for (int j = 1; j < 6; j++)
+                    int start = i;
+                    if (i == 0) {
+                        start = 1;
+                    }
+                    for (int j = start; j < 6; j++)
                     {
                         list.Add(new Tile(i, j));
                     }
                 }
+
+                //Console.WriteLine("AUGH!!!!" + list.Count);
 
                 Shuffle<Tile>(list, random);
 
