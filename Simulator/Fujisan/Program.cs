@@ -13,7 +13,7 @@ namespace Fujisan
         {
             int TRIALS = 10;
             int EXP = 100;
-            Setup setup = Setup.DOMINO;
+            Setup setup = Setup.RANDOM;
 
             List<int> hist = new List<int>();
             Random random = new Random();

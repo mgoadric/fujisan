@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Fujisan
@@ -318,6 +318,22 @@ namespace Fujisan
                             if (pawns[other, j] != 1)
                             {
                                 AddChild(i, j, other, j, children);
+                            }
+                        }
+
+                        if (j == 6)
+                        {
+                            if (pawns[i, 7] != 1)
+                            {
+                                AddChild(i, j, i, 7, children);
+                            }
+                        }
+
+                        if (j == 7)
+                        {
+                            if (pawns[i, 6] != 1)
+                            {
+                                AddChild(i, j, i, 6, children);
                             }
                         }
 
