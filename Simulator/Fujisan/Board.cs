@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Fujisan
 {
     public enum Setup {
-        DOMINO, COIN, ANYCOIN, RANDOM, HARDCODE
+        TILES, DOMINO, COIN, ANYCOIN, RANDOM, HARDCODE
     }
 
     /********
@@ -40,7 +40,7 @@ namespace Fujisan
             move = "START";
 
             values = new int[2, 14];
-            if (s == Setup.DOMINO)
+            if (s == Setup.TILES)
             {
                 
                 // Make the 20 tiles matching domino distribution
@@ -91,6 +91,50 @@ namespace Fujisan
                 values[1, 7] = list[t].values[1, 0];
 
             }
+            else if (s == Setup.DOMINO)
+            {
+
+                // Make the 15 tiles matching domino distribution
+                List<Tile> list = new List<Tile>();
+                for (int i = 0; i < 6; i++)
+                {
+                    int start = i + 1;
+                    for (int j = start; j < 6; j++)
+                    {
+                        list.Add(new Tile(i, j));
+                    }
+                }
+
+                //Console.WriteLine("AUGH!!!!" + list.Count);
+
+                Shuffle<Tile>(list, random);
+
+                // Fill in numbers on the left half
+                int t = -1;
+                for (int i = 0; i < 6; i++)
+                {
+                    t++;
+                    if (random.NextDouble() > 0.5)
+                    {
+                        list[t].Rotate();
+                    }
+                    values[0, t + 1] = list[t].values[0, 0];
+                    values[1, t + 1] = list[t].values[1, 0];
+                }
+
+                // Fill in numbers on the right half
+                for (int i = 0; i < 6; i++)
+                {
+                    t++;
+                    if (random.NextDouble() > 0.5)
+                    {
+                        list[t].Rotate();
+                    }
+                    values[0, 12 - i] = list[t].values[0, 1];
+                    values[1, 12 - i] = list[t].values[1, 1];
+                }
+            }
+
             else if (s == Setup.COIN)
             {
 
