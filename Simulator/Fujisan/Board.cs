@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Fujisan
 {
     public enum Setup {
-        TILES, DOMINO, COIN, ANYCOIN, RANDOM, HARDCODE
+        ENGRAVED, DOMINO, PIECEPACK, ANYCOIN, RANDOM, HARDCODE
     }
 
     /********
@@ -40,15 +40,16 @@ namespace Fujisan
             move = "START";
 
             values = new int[2, 14];
-            if (s == Setup.TILES)
+            if (s == Setup.ENGRAVED)
             {
-                
+
                 // Make the 20 tiles matching domino distribution
                 List<Tile> list = new List<Tile>();
                 for (int i = 0; i < 6; i++)
                 {
                     int start = i;
-                    if (i == 0) {
+                    if (i == 0)
+                    {
                         start = 1;
                     }
                     for (int j = start; j < 6; j++)
@@ -135,7 +136,7 @@ namespace Fujisan
                 }
             }
 
-            else if (s == Setup.COIN)
+            else if (s == Setup.PIECEPACK)
             {
 
                 // Make the coins for the piecepack
@@ -231,13 +232,16 @@ namespace Fujisan
                 values[1, 2] = 4;
                 values[0, 1] = 5;
                 values[1, 1] = 2;
-            } else if (s == Setup.RANDOM) {
-                    
-                    for (int i = 0; i < 2; i++) {
-                        for (int j = 1; j < 13; j++) {
-                            values[i, j] = random.Next(0, 6);
-                        }
+            }
+            else if (s == Setup.RANDOM)
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    for (int j = 1; j < 13; j++)
+                    {
+                        values[i, j] = random.Next(0, 6);
                     }
+                }
             }
 
             // Place the pawns on the edges of the board
