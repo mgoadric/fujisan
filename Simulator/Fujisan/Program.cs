@@ -7,13 +7,18 @@ using System.Threading.Tasks;
 
 namespace Fujisan
 {
+    public enum Search {
+        ASTAR, RANDOM
+    }
+
     class MainClass
     {
         public static void Main(string[] args)
         {
             int TRIALS = 10;
             int EXP = 100;
-            Setup setup = Setup.RANDOM;
+            Setup setup = Setup.ANYCOIN;
+            Search search = Search.ASTAR;
 
             List<int> hist = new List<int>();
             Random random = new Random();
@@ -28,83 +33,104 @@ namespace Fujisan
                 int count = 0;
                 int lensum = 0;
                 int dead = 0;
+                int max = 0;
 
-                Parallel.For(0, EXP,
-                   i =>
-                   {
-                       // Total count of boards, for HashSet later
-                       int bcount = 0;
+                Parallel.For(0, EXP, i =>
+                //for (int i = 0; i < EXP; i++)
+                {
+                    // Total count of boards, for HashSet later
+                    int bcount = 0;
 
-                       // Store all boards seen in found
-                       HashSet<Board> found = new HashSet<Board>();
+                    // Store all boards seen in found
+                    HashSet<Board> found = new HashSet<Board>();
 
-                       // Keep track of board states to explore in frontier
-                       // Sort them by heuristic plus current path length for A*
-                       SortedList<double, Board> frontier = new SortedList<double, Board>();
+                    // Keep track of board states to explore in frontier
+                    // Sort them by heuristic plus current path length for A*
+                    SortedList<double, Board> frontier = new SortedList<double, Board>();
 
-                       // Create a new board and place it in the frontier
-                       Board start = new Board(random, setup);
-                       Debug.WriteLine(start);
-                       Debug.WriteLine("Starting:");
-                       Debug.WriteLine(start + "\n");
-                       frontier.Add(start.length + start.Heuristic() + (1e-12 * bcount), start);
+                    // Create a new board and place it in the frontier
+                    Board start = new Board(random, setup);
+                    Debug.WriteLine(start);
+                    Debug.WriteLine("Starting:");
+                    Debug.WriteLine(start + "\n");
+                    frontier.Add(start.length + start.Heuristic() + (1e-12 * bcount), start);
 
-                       // Keep searching the frontier until it is empty or
-                       // a solution is found
-                       while (frontier.Count > 0)
-                       {
+                    // Keep searching the frontier until it is empty or
+                    // a solution is found
+                    while (frontier.Count > 0)
+                    {
 
-                           // Take the most promising board state, remove from
-                           // frontier and add it to the found set
-                           var keys = frontier.Keys;
-                           var first = keys[0];
-                           Board board = frontier[first];
-                           frontier.Remove(first);
-                           found.Add(board);
+                        // Take the most promising board state, remove from
+                        // frontier and add it to the found set
+                        var keys = frontier.Keys;
+                        var first = keys[0];
+                        Board board = frontier[first];
+                        frontier.Remove(first);
+                        found.Add(board);
 
-                           // Find the children of the current board
-                           List<Board> stuff = board.GetChildren();
-                           foreach (Board b in stuff)
-                           {
-                               // Did you find a solution?
-                               if (b.Solved())
-                               {
-                                   // Yay! Record statistics
-                                   Debug.WriteLine("SOLUTION!!!!");
-                                   Debug.WriteLine(b.Path());
-                                   frontier.Clear();
+                        // Find the children of the current board
+                        List<Board> children = board.GetChildren();
+                        List<Board> stuff = new List<Board>();
+                        if (search == Search.ASTAR)
+                        {
+                            stuff = children;
+                        }
+                        else  // Pick a child randomly
+                        {
+                            if (children.Count > 0)
+                            {
+                                stuff.Add(children[random.Next(0, children.Count)]);
+                            }
+                        }
+                        //Console.WriteLine(b.Path());
+                        //Console.WriteLine(frontier.Count);
+                        foreach (Board b in stuff)
+                        {
+                            // Did you find a solution?
+                            if (b.Solved())
+                            {
+                                // Yay! Record statistics
+                                Debug.WriteLine("SOLUTION!!!!");
+                                Debug.WriteLine(b.Path());
+                                frontier.Clear();
                                 lock (random)
-                                   {
-                                       lensum += b.length;
-                                       count++;
-                                       hist.Add(b.length);
-                                   }
-                                   break;
-                               }
+                                {
+                                    lensum += b.length;
+                                    count++;
+                                    hist.Add(b.length);
+                                    if (b.length > max)
+                                    {
+                                        Debug.WriteLine("SOLUTION!!!!");
+                                        Debug.WriteLine(b.Path());
+                                        max = b.length;
+                                    }
+                                }
+                                break;
+                            }
 
-                               // If you have never seen this board before
-                               // Add it to the frontier
-                               if (!found.Contains(b) && !frontier.ContainsValue(b))
-                               {
-                                   bcount++;
-                                   frontier.Add(b.length + b.Heuristic() + (1e-12 * bcount), b);
-                               }
-                               else
-                               {
-                                   //Console.WriteLine("WOAH!");
-                               }
-                           }
-                       }
+                            // If you have never seen this board before
+                            // Add it to the frontier
+                            if (!found.Contains(b) && !frontier.ContainsValue(b))
+                            {
+                                bcount++;
+                                frontier.Add(b.length + b.Heuristic() + (1e-12 * bcount), b);
+                            }
+                            else
+                            {
+                                //Console.WriteLine("WOAH!");
+                            }
+                        }
+                    }
 
-                       // Record when no children of initial state could be found
-                       if (found.Count == 1)
-                       {
+                    // Record when no children of initial state could be found
+                    if (found.Count == 1)
+                    {
                         lock (random)
-                           {
-                               dead++;
-                           }
-                       }
-                   });
+                        {
+                            dead++;
+                        }
+                    }
+                });
 
                 Console.WriteLine(((float)count / EXP) +
                                   "\t" + ((float)dead / EXP) +
