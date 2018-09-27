@@ -254,6 +254,39 @@ namespace Fujisan
         }
 
         /*******
+         * Returns the average connections per step for this puzzle.
+         */
+        public double ConnectionStrength() {
+            double c = 0;
+            for (int i = 1; i < 13; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    double v = 1;
+                    if (values[j, i] == values[1 - j, i])
+                    {
+                        v = 0.5;
+                    }
+
+                    if (values[j, i] > 0)
+                    {
+                        int left = i - values[j, i];
+                        int right = i + values[j, i];
+                        if (left >= 0 && left != 6 && left != 7)
+                        {
+                            c += v;
+                        }
+                        if (right <= 13 && right != 6 && right != 7)
+                        {
+                            c += v;
+                        }
+                    }
+                }
+            }
+            return c / 12;
+        }
+
+        /*******
          * Returns an approximate value for the distance to a solution.
          * Counts the number of empty spots in the center of the board.
          * Fudges this with a random double to make them differentiable

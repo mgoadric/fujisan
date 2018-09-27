@@ -17,14 +17,18 @@ namespace Fujisan
         {
             int TRIALS = 10;
             int EXP = 100;
-            Setup setup = Setup.ANYCOIN;
+
+            // Choose here the setup algorithm you wish to use
+            Setup setup = Setup.PIECEPACK;
+
+            // Choose here the search algorithm for the solver
             Search search = Search.ASTAR;
 
             List<int> hist = new List<int>();
             Random random = new Random();
 
             // Easy output for copying into a spreadsheet
-            Console.WriteLine("solved\tdead\tavelen");
+            Console.WriteLine("solved\tdead\tavelen\tsconn\tfconn");
 
             // Run the specified number of experiments within the number
             // of specified trials
@@ -33,6 +37,8 @@ namespace Fujisan
                 int count = 0;
                 int lensum = 0;
                 int dead = 0;
+                double sconn = 0;
+                double fconn = 0;
                 int max = 0;
 
                 Parallel.For(0, EXP, i =>
@@ -57,6 +63,7 @@ namespace Fujisan
 
                     // Keep searching the frontier until it is empty or
                     // a solution is found
+                    bool solved = false;
                     while (frontier.Count > 0)
                     {
 
@@ -90,11 +97,14 @@ namespace Fujisan
                             if (b.Solved())
                             {
                                 // Yay! Record statistics
+                                solved = true;
                                 Debug.WriteLine("SOLUTION!!!!");
                                 Debug.WriteLine(b.Path());
+
                                 frontier.Clear();
                                 lock (random)
                                 {
+                                    sconn += start.ConnectionStrength();
                                     lensum += b.length;
                                     count++;
                                     hist.Add(b.length);
@@ -123,18 +133,24 @@ namespace Fujisan
                     }
 
                     // Record when no children of initial state could be found
-                    if (found.Count == 1)
+                    if (!solved)
                     {
-                        lock (random)
+                        fconn += start.ConnectionStrength();
+                        if (found.Count == 1)
                         {
-                            dead++;
+                            lock (random)
+                            {
+                                dead++;
+                            }
                         }
                     }
                 });
 
                 Console.WriteLine(((float)count / EXP) +
                                   "\t" + ((float)dead / EXP) +
-                                  "\t" + ((float)lensum / count));
+                                  "\t" + ((float)lensum / count) + 
+                                  "\t" + sconn / count + 
+                                  "\t" + fconn / (EXP - count));
             }
             foreach (int i in hist) {
                 Console.WriteLine(i);
