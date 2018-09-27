@@ -20,9 +20,9 @@ embedding sub-elements of the puzzle mechanics into the physical pieces of the g
 2. Alter the Program.cs class to choose the PCG algorithm and solver of your choice.
 3. Run the program.
 4. Output to the console will be reported in a tab-delimited form
-    a. The number of solvable challenges
-    b. The number of "dead" challenges that have no moves possible
-    c. The average minimum solution length of solvable challenges
-    d. The average connectedness for solvable challenges
-    e. The average connectedness for unsolvable challenges
+    1. The number of solvable challenges
+    2. The number of "dead" challenges that have no moves possible
+    3. The average minimum solution length of solvable challenges
+    4. The average connectedness for solvable challenges
+    5. The average connectedness for unsolvable challenges
 5. The final output will be a list of the minimum solution lengths for all solvable challenges
