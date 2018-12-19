@@ -15,7 +15,7 @@ namespace Fujisan
     {
         public static void Main(string[] args)
         {
-            int TRIALS = 10;
+            int TRIALS = 1;
             int EXP = 100;
 
             // Choose here the setup algorithm you wish to use
@@ -25,6 +25,7 @@ namespace Fujisan
             Search search = Search.ASTAR;
 
             List<int> hist = new List<int>();
+            List<int> countermoves = new List<int>();
             Random random = new Random();
 
             // Easy output for copying into a spreadsheet
@@ -107,7 +108,9 @@ namespace Fujisan
                                     sconn += start.ConnectionStrength();
                                     lensum += b.length;
                                     count++;
-                                    hist.Add(b.length);
+                                    Console.WriteLine(b.length + "," +
+                                    b.countermoves + "," + b.MovePath());
+
                                     if (b.length > max)
                                     {
                                         Debug.WriteLine("SOLUTION!!!!");
@@ -152,7 +155,14 @@ namespace Fujisan
                                   "\t" + sconn / count + 
                                   "\t" + fconn / (EXP - count));
             }
-            foreach (int i in hist) {
+            Console.WriteLine("Steps");
+            foreach (int i in hist)
+            {
+                Console.WriteLine(i);
+            }
+            Console.WriteLine("CounterMoves");
+            foreach (int i in countermoves)
+            {
                 Console.WriteLine(i);
             }
         }

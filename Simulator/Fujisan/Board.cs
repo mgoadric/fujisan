@@ -7,6 +7,11 @@ namespace Fujisan
         ENGRAVED, DOMINO, PIECEPACK, ANYCOIN, RANDOM, HARDCODE
     }
 
+    public enum MoveType
+    {
+        START, HORIZONTAL, VERTICAL
+    }
+
     /********
      * A Board class to represent a configuration of the game Fujisan, main
      * elements include the values for the spaces on the board and the 
@@ -19,8 +24,9 @@ namespace Fujisan
         public int[,] pawns;  // 0 for no pawn, 1 for pawn, there will be 4
         public Board parent;  // reference to the board before the move
         public string move;   // string to denote how the board was found
+        public MoveType moveType;
         public int length;    // number of steps to get to this board
-
+        public int countermoves;
         public Random random;
 
         /******
@@ -38,6 +44,7 @@ namespace Fujisan
         {
             this.random = random;
             move = "START";
+            moveType = MoveType.START;
 
             values = new int[2, 14];
             if (s == Setup.ENGRAVED)
@@ -301,6 +308,22 @@ namespace Fujisan
             return h;
         }
 
+        public double Heuristic2()
+        {
+            double h = 0;
+            for (int i = 0; i < 14; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    if (pawns[j, i] == 1)
+                    {
+                        h += Math.Abs(i - 6.5);
+                    }
+                }
+            }
+
+            return h;
+        }
         /********
          * Determines if the board is solves, such that all pawns
          * are in the four center locations
@@ -324,10 +347,16 @@ namespace Fujisan
         /********
          * Add a new child based on moving the pawn from (x1, y1) to (x2, y2)
          */
-        public void AddChild(int x1, int y1, int x2, int y2, List<Board> children) {
+        public void AddChild(int x1, int y1, int x2, int y2, List<Board> children, MoveType moveType) {
             Board board = Clone(x1, y1, x2, y2, length);
             board.pawns[x1, y1] = 0;
             board.pawns[x2, y2] = 1;
+            board.moveType = moveType;
+            board.countermoves = this.countermoves;
+            if (this.Heuristic2() < board.Heuristic2())
+            {
+                board.countermoves++;
+            }
             children.Add(board);           
         }
 
@@ -354,7 +383,7 @@ namespace Fujisan
                             // When no pawn is there, you can move sideways
                             if (pawns[other, j] != 1)
                             {
-                                AddChild(i, j, other, j, children);
+                                AddChild(i, j, other, j, children, MoveType.HORIZONTAL);
                             }
                         }
 
@@ -362,7 +391,7 @@ namespace Fujisan
                         {
                             if (pawns[i, 7] != 1)
                             {
-                                AddChild(i, j, i, 7, children);
+                                AddChild(i, j, i, 7, children, MoveType.HORIZONTAL);
                             }
                         }
 
@@ -370,7 +399,7 @@ namespace Fujisan
                         {
                             if (pawns[i, 6] != 1)
                             {
-                                AddChild(i, j, i, 6, children);
+                                AddChild(i, j, i, 6, children, MoveType.HORIZONTAL);
                             }
                         }
 
@@ -404,7 +433,7 @@ namespace Fujisan
                                     // the distance to travel, it is a valid move
                                     if (values[i, k] == dist)
                                     {
-                                        AddChild(i, j, i, k, children);
+                                        AddChild(i, j, i, k, children, MoveType.VERTICAL);
                                     }
                                 }
                             }
@@ -454,6 +483,29 @@ namespace Fujisan
                 return move + "\n" + ToString();
             } else {
                 return parent.Path() + "\n" + move + "\n" + ToString();
+            }
+        }
+
+        /********
+         * Recursively return the path of moves that led you to this
+         * particular board state, H for Horizontal, V for Vertical.
+         */
+        public string MovePath()
+        {
+            if (parent == null)
+            {
+                return "S";
+            }
+            else
+            {
+                if (moveType == MoveType.HORIZONTAL)
+                {
+                    return parent.MovePath() + ",H";
+                }
+                else
+                {
+                    return parent.MovePath() + ",V";
+                }
             }
         }
 
