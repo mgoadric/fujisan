@@ -451,8 +451,8 @@ namespace Fujisan
          */
         public Board Clone(int x1, int y1, int x2, int y2, int len)
         {
-            int[,] vs = new int[2, 14];
-            int[,] ps = new int[2, 14];
+            int[,] vs = values.Clone() as int[,];
+            int[,] ps = pawns.Clone() as int[,];
             for (int i = 0; i < 2; i++)
             {
                 for (int j = 0; j < 14; j++)

@@ -179,7 +179,7 @@ namespace Fujisan
             int EXP = 1;
 
             // Choose here the setup algorithm you wish to use
-            BoxOnSetup setup = BoxOnSetup.RANDOM;
+            BoxOnSetup setup = BoxOnSetup.TILES;
 
             // Choose here the search algorithm for the solver
             Search search = Search.BFS;
@@ -214,8 +214,8 @@ namespace Fujisan
                     Queue<BoxOnBoard> frontier = new Queue<BoxOnBoard>();
 
                     // Create a new board and place it in the frontier
-                    BoxOnBoard start = new BoxOnBoard(random, 6, 8, 4, setup);
-                    //Console.WriteLine(start);
+                    BoxOnBoard start = new BoxOnBoard(random, 6, 6, 6, setup);
+                    Console.WriteLine(start);
                     //Console.WriteLine("Starting:");
                     //Console.WriteLine(start + "\n");
                     frontier.Enqueue(start);
@@ -223,6 +223,7 @@ namespace Fujisan
                     // Keep searching the frontier until it is empty or
                     // a solution is found
                     bool solved = false;
+                    int maxLenLocal = 0;
                     while (frontier.Count > 0)
                     {
 
@@ -245,7 +246,11 @@ namespace Fujisan
                             }
                         }
                         //Console.WriteLine(b.Path());
-                        Console.WriteLine(frontier.Count);
+                        if (board.length > maxLenLocal)
+                        {
+                            Console.WriteLine(board.length + "," + frontier.Count);
+                            maxLenLocal = board.length;
+                        }
                         foreach (BoxOnBoard b in stuff)
                         {
                             // Did you find a solution?

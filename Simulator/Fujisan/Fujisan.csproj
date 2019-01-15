@@ -37,6 +37,7 @@
     <Compile Include="Tile.cs" />
     <Compile Include="Board.cs" />
     <Compile Include="BoxOnBoard.cs" />
+    <Compile Include="BoxOnTile.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

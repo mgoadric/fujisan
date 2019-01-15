@@ -13,13 +13,13 @@ namespace Fujisan
 
         public int height;
         public int width;
+        public int totalMoves;
         public int colorCount;
         public byte[,] values; // 0 is empty 1-colorCount representing a color
             // Should this be a simple array?
         public BoxOnBoard parent;  // reference to the board before the move
         public string move;   // string to denote how the board was found
         public int length;    // number of steps to get to this board
-        public int countermoves;
         public Random random;
 
         /******
@@ -30,6 +30,7 @@ namespace Fujisan
             values = new byte[height, width];
             this.height = height;
             this.width = width;
+            totalMoves = height * width / 2;
             this.colorCount = colorCount;
         }
 
@@ -44,6 +45,8 @@ namespace Fujisan
             values = new byte[height, width];
             this.height = height;
             this.width = width;
+            totalMoves = height * width / 2;
+
             if (s == BoxOnSetup.RANDOM)
             {
 
@@ -71,6 +74,65 @@ namespace Fujisan
                         values[j, k] = colors[j + k * height];
                     }
                 }
+            } else if (s == BoxOnSetup.TILES)
+            {
+                List<BoxOnTile> tiles = new List<BoxOnTile>();
+                tiles.Add(new BoxOnTile(1, 2));
+                tiles.Add(new BoxOnTile(1, 5));
+                tiles.Add(new BoxOnTile(2, 3));
+                tiles.Add(new BoxOnTile(2, 6));
+                tiles.Add(new BoxOnTile(3, 4));
+                tiles.Add(new BoxOnTile(3, 1));
+                tiles.Add(new BoxOnTile(4, 5));
+                tiles.Add(new BoxOnTile(4, 2));
+                tiles.Add(new BoxOnTile(5, 6));
+                tiles.Add(new BoxOnTile(5, 3));
+                tiles.Add(new BoxOnTile(6, 1));
+                tiles.Add(new BoxOnTile(6, 4));
+
+                Shuffle(tiles, random);
+
+                int t = 0;
+                for (int i = 0; i < 6; i += 2)
+                {
+                    for (int j = 0; j < 6; j += 3)
+                    {
+                        BoxOnTile tile = tiles[t];
+                        values[i, j] = tile.dup;
+
+                        if (random.Next(0, 2) == 1)
+                        {
+                            values[i, j + 1] = tile.single;
+                            values[i + 1, j] = tile.dup;
+                        }
+                        else
+                        {
+                            values[i, j + 1] = tile.dup;
+                            values[i + 1, j] = tile.single;
+                        }
+                        t++;
+                    }
+                }
+                for (int i = 0; i < 6; i += 2)
+                {
+                    for (int j = 1; j < 6; j += 3)
+                    {
+                        BoxOnTile tile = tiles[t];
+                        values[i + 1, j + 1] = tile.dup;
+
+                        if (random.Next(0, 2) == 1)
+                        {
+                            values[i, j + 1] = tile.single;
+                            values[i + 1, j] = tile.dup;
+                        }
+                        else
+                        {
+                            values[i, j + 1] = tile.dup;
+                            values[i + 1, j] = tile.single;
+                        }
+                        t++;
+                    }
+                }
             }
         }
 
@@ -80,7 +142,7 @@ namespace Fujisan
          */
         public double Heuristic()
         {
-            return (height * width) / 2 - length;
+            return totalMoves - length;
         }
 
         /********
@@ -89,7 +151,7 @@ namespace Fujisan
          */
         public bool Solved()
         {
-            return length == (height * width) / 2;
+            return length == totalMoves;
         }
 
         /********
@@ -102,7 +164,6 @@ namespace Fujisan
             board.values[x2, y2] = 0;
             children.Add(board);
         }
-
 
         public bool Clear(int x1, int y1, int x2, int y2)
         {
@@ -183,14 +244,8 @@ namespace Fujisan
          */
         public BoxOnBoard Clone(int x1, int y1, int x2, int y2, int len)
         {
-            byte[,] vs = new byte[height, width];
-            for (int i = 0; i < height; i++)
-            {
-                for (int j = 0; j < width; j++)
-                {
-                    vs[i, j] = values[i, j];
-                }
-            }
+            byte[,] vs = values.Clone() as byte[,];
+
             string m = "(" + x1 + "," + y1 + ") , (" + x2 + "," + y2 + ")";
             return new BoxOnBoard(height, width, colorCount)
             {
