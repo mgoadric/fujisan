@@ -8,18 +8,25 @@ using System.Threading.Tasks;
 namespace Fujisan
 {
     public enum Search {
-        ASTAR, RANDOM
+        ASTAR, BFS, RANDOM, FULL
     }
 
     class MainClass
     {
         public static void Main(string[] args)
         {
+
+            BoxOnMain();
+
+        }
+
+        public static void FujisanMain()
+        {
             int TRIALS = 1;
             int EXP = 100;
 
             // Choose here the setup algorithm you wish to use
-            Setup setup = Setup.PIECEPACK;
+            FujisanSetup setup = FujisanSetup.PIECEPACK;
 
             // Choose here the search algorithm for the solver
             Search search = Search.ASTAR;
@@ -57,9 +64,9 @@ namespace Fujisan
 
                     // Create a new board and place it in the frontier
                     Board start = new Board(random, setup);
-                    Debug.WriteLine(start);
-                    Debug.WriteLine("Starting:");
-                    Debug.WriteLine(start + "\n");
+                    Console.WriteLine(start);
+                    Console.WriteLine("Starting:");
+                    Console.WriteLine(start + "\n");
                     frontier.Add(start.length + start.Heuristic() + (1e-12 * bcount), start);
 
                     // Keep searching the frontier until it is empty or
@@ -90,8 +97,7 @@ namespace Fujisan
                                 stuff.Add(children[random.Next(0, children.Count)]);
                             }
                         }
-                        //Console.WriteLine(b.Path());
-                        //Console.WriteLine(frontier.Count);
+                        Console.WriteLine(frontier.Count);
                         foreach (Board b in stuff)
                         {
                             // Did you find a solution?
@@ -151,8 +157,8 @@ namespace Fujisan
 
                 Console.WriteLine(((float)count / EXP) +
                                   "\t" + ((float)dead / EXP) +
-                                  "\t" + ((float)lensum / count) + 
-                                  "\t" + sconn / count + 
+                                  "\t" + ((float)lensum / count) +
+                                  "\t" + sconn / count +
                                   "\t" + fconn / (EXP - count));
             }
             Console.WriteLine("Steps");
@@ -164,6 +170,140 @@ namespace Fujisan
             foreach (int i in countermoves)
             {
                 Console.WriteLine(i);
+            }
+        }
+
+        public static void BoxOnMain()
+        {
+            int TRIALS = 1;
+            int EXP = 1;
+
+            // Choose here the setup algorithm you wish to use
+            BoxOnSetup setup = BoxOnSetup.RANDOM;
+
+            // Choose here the search algorithm for the solver
+            Search search = Search.BFS;
+
+            Random random = new Random();
+
+            // Easy output for copying into a spreadsheet
+            Console.WriteLine("solved\tdead\tavelen\tsconn\tfconn");
+
+            // Run the specified number of experiments within the number
+            // of specified trials
+            for (int t = 0; t < TRIALS; t++)
+            {
+                int count = 0;
+                int lensum = 0;
+                int dead = 0;
+                double sconn = 0;
+                double fconn = 0;
+                int max = 0;
+
+                Parallel.For(0, EXP, i =>
+                //for (int i = 0; i < EXP; i++)
+                {
+                    // Total count of boards, for HashSet later
+                    int bcount = 0;
+
+                    // Store all boards seen in found
+                    HashSet<BoxOnBoard> found = new HashSet<BoxOnBoard>();
+
+                    // Keep track of board states to explore in frontier
+                    // Sort them by heuristic plus current path length for A*
+                    Queue<BoxOnBoard> frontier = new Queue<BoxOnBoard>();
+
+                    // Create a new board and place it in the frontier
+                    BoxOnBoard start = new BoxOnBoard(random, 6, 8, 4, setup);
+                    //Console.WriteLine(start);
+                    //Console.WriteLine("Starting:");
+                    //Console.WriteLine(start + "\n");
+                    frontier.Enqueue(start);
+
+                    // Keep searching the frontier until it is empty or
+                    // a solution is found
+                    bool solved = false;
+                    while (frontier.Count > 0)
+                    {
+
+                        // Take the next promising board state
+                        BoxOnBoard board = frontier.Dequeue();
+                        found.Add(board);
+
+                        // Find the children of the current board
+                        List<BoxOnBoard> children = board.GetChildren();
+                        List<BoxOnBoard> stuff = new List<BoxOnBoard>();
+                        if (search == Search.BFS)
+                        {
+                            stuff = children;
+                        }
+                        else  // Pick a child randomly
+                        {
+                            if (children.Count > 0)
+                            {
+                                stuff.Add(children[random.Next(0, children.Count)]);
+                            }
+                        }
+                        //Console.WriteLine(b.Path());
+                        Console.WriteLine(frontier.Count);
+                        foreach (BoxOnBoard b in stuff)
+                        {
+                            // Did you find a solution?
+                            if (b.Solved())
+                            {
+                                // Yay! Record statistics
+                                solved = true;
+                                //Console.WriteLine("SOLUTION!!!!");
+                                //Console.WriteLine(b.Path());
+
+                                frontier.Clear();
+                                lock (random)
+                                {
+                                    lensum += b.length;
+                                    count++;
+
+                                    if (b.length > max)
+                                    {
+                                        //Console.WriteLine("SOLUTION!!!!");
+                                        //Console.WriteLine(b.Path());
+                                        max = b.length;
+                                    }
+                                }
+                                break;
+                            }
+
+                            // If you have never seen this board before
+                            // Add it to the frontier
+                            if (!found.Contains(b) && !frontier.Contains(b))
+                            {
+                                bcount++;
+                                frontier.Enqueue(b);
+                            }
+                            else
+                            {
+                                //Console.WriteLine("WOAH!");
+                            }
+                        }
+                    }
+
+                    // Record when no children of initial state could be found
+                    if (!solved)
+                    {
+                        if (found.Count == 1)
+                        {
+                            lock (random)
+                            {
+                                dead++;
+                            }
+                        }
+                    }
+                });
+
+                Console.WriteLine(((float)count / EXP) +
+                                  "\t" + ((float)dead / EXP) +
+                                  "\t" + ((float)lensum / count) +
+                                  "\t" + sconn / count +
+                                  "\t" + fconn / (EXP - count));
             }
         }
     }

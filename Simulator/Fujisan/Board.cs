@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace Fujisan
 {
-    public enum Setup {
+    public enum FujisanSetup {
         ENGRAVED, DOMINO, PIECEPACK, ANYCOIN, RANDOM, HARDCODE
     }
 
-    public enum MoveType
+    public enum FujisanMoveType
     {
         START, HORIZONTAL, VERTICAL
     }
@@ -24,7 +24,7 @@ namespace Fujisan
         public int[,] pawns;  // 0 for no pawn, 1 for pawn, there will be 4
         public Board parent;  // reference to the board before the move
         public string move;   // string to denote how the board was found
-        public MoveType moveType;
+        public FujisanMoveType moveType;
         public int length;    // number of steps to get to this board
         public int countermoves;
         public Random random;
@@ -40,14 +40,14 @@ namespace Fujisan
         /******
          * Creates a random starting board state
          */
-        public Board(Random random, Setup s)
+        public Board(Random random, FujisanSetup s)
         {
             this.random = random;
             move = "START";
-            moveType = MoveType.START;
+            moveType = FujisanMoveType.START;
 
             values = new int[2, 14];
-            if (s == Setup.ENGRAVED)
+            if (s == FujisanSetup.ENGRAVED)
             {
 
                 // Make the 20 tiles matching domino distribution
@@ -99,7 +99,7 @@ namespace Fujisan
                 values[1, 7] = list[t].values[1, 0];
 
             }
-            else if (s == Setup.DOMINO)
+            else if (s == FujisanSetup.DOMINO)
             {
 
                 // Make the 15 tiles matching domino distribution
@@ -143,7 +143,7 @@ namespace Fujisan
                 }
             }
 
-            else if (s == Setup.PIECEPACK)
+            else if (s == FujisanSetup.PIECEPACK)
             {
 
                 // Make the coins for the piecepack
@@ -181,7 +181,7 @@ namespace Fujisan
                     }
                 }
             }
-            else if (s == Setup.ANYCOIN)
+            else if (s == FujisanSetup.ANYCOIN)
             {
 
                 // Make the coins for the piecepack
@@ -210,7 +210,7 @@ namespace Fujisan
                 }
 
             }
-            else if (s == Setup.HARDCODE)
+            else if (s == FujisanSetup.HARDCODE)
             {
                 // Initial board from Puzzle Four
                 // http://www.ludism.org/ppwiki/Fuji-san#Heading9
@@ -240,7 +240,7 @@ namespace Fujisan
                 values[0, 1] = 5;
                 values[1, 1] = 2;
             }
-            else if (s == Setup.RANDOM)
+            else if (s == FujisanSetup.RANDOM)
             {
                 for (int i = 0; i < 2; i++)
                 {
@@ -347,7 +347,7 @@ namespace Fujisan
         /********
          * Add a new child based on moving the pawn from (x1, y1) to (x2, y2)
          */
-        public void AddChild(int x1, int y1, int x2, int y2, List<Board> children, MoveType moveType) {
+        public void AddChild(int x1, int y1, int x2, int y2, List<Board> children, FujisanMoveType moveType) {
             Board board = Clone(x1, y1, x2, y2, length);
             board.pawns[x1, y1] = 0;
             board.pawns[x2, y2] = 1;
@@ -383,7 +383,7 @@ namespace Fujisan
                             // When no pawn is there, you can move sideways
                             if (pawns[other, j] != 1)
                             {
-                                AddChild(i, j, other, j, children, MoveType.HORIZONTAL);
+                                AddChild(i, j, other, j, children, FujisanMoveType.HORIZONTAL);
                             }
                         }
 
@@ -391,7 +391,7 @@ namespace Fujisan
                         {
                             if (pawns[i, 7] != 1)
                             {
-                                AddChild(i, j, i, 7, children, MoveType.HORIZONTAL);
+                                AddChild(i, j, i, 7, children, FujisanMoveType.HORIZONTAL);
                             }
                         }
 
@@ -399,7 +399,7 @@ namespace Fujisan
                         {
                             if (pawns[i, 6] != 1)
                             {
-                                AddChild(i, j, i, 6, children, MoveType.HORIZONTAL);
+                                AddChild(i, j, i, 6, children, FujisanMoveType.HORIZONTAL);
                             }
                         }
 
@@ -433,7 +433,7 @@ namespace Fujisan
                                     // the distance to travel, it is a valid move
                                     if (values[i, k] == dist)
                                     {
-                                        AddChild(i, j, i, k, children, MoveType.VERTICAL);
+                                        AddChild(i, j, i, k, children, FujisanMoveType.VERTICAL);
                                     }
                                 }
                             }
@@ -498,7 +498,7 @@ namespace Fujisan
             }
             else
             {
-                if (moveType == MoveType.HORIZONTAL)
+                if (moveType == FujisanMoveType.HORIZONTAL)
                 {
                     return parent.MovePath() + ",H";
                 }
