@@ -211,7 +211,7 @@ namespace Fujisan
                     for (int m = j + 1; m < width; m++)
                     {
                         // When a pawn is found
-                        if ((i != k || j != m) &&
+                        if ((i != k || j != m) && values[i, j] != 0 && 
                             values[i, j] == values[k, m] &&
                             Clear(i, j, k, m))
                         {
@@ -224,7 +224,7 @@ namespace Fujisan
                         for (int m = 0; m < width; m++)
                         {
                             // When a pawn is found
-                            if ((i != k || j != m) &&
+                            if ((i != k || j != m) && values[i,j] != 0 &&
                                 values[i, j] == values[k, m] &&
                                 Clear(i, j, k, m))
                             {

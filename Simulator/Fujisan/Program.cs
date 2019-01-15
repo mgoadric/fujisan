@@ -215,7 +215,7 @@ namespace Fujisan
 
                     // Create a new board and place it in the frontier
                     BoxOnBoard start = new BoxOnBoard(random, 6, 6, 6, setup);
-                    Console.WriteLine(start);
+                    //Console.WriteLine(start);
                     //Console.WriteLine("Starting:");
                     //Console.WriteLine(start + "\n");
                     frontier.Enqueue(start);
@@ -233,6 +233,7 @@ namespace Fujisan
 
                         // Find the children of the current board
                         List<BoxOnBoard> children = board.GetChildren();
+                        //Console.WriteLine("numChildren:" + children.Count);
                         List<BoxOnBoard> stuff = new List<BoxOnBoard>();
                         if (search == Search.BFS)
                         {
@@ -242,10 +243,13 @@ namespace Fujisan
                         {
                             if (children.Count > 0)
                             {
-                                stuff.Add(children[random.Next(0, children.Count)]);
+                                int which = random.Next(0, children.Count);
+                                //Console.WriteLine("adding child" + which);
+
+                                stuff.Add(children[which]);
                             }
                         }
-                        //Console.WriteLine(b.Path());
+                        //Console.WriteLine(board.Path());
                         if (board.length > maxLenLocal)
                         {
                             Console.WriteLine(board.length + "," + frontier.Count);
@@ -276,6 +280,10 @@ namespace Fujisan
                                 }
                                 break;
                             }
+                            else
+                            {
+
+                            }
 
                             // If you have never seen this board before
                             // Add it to the frontier
@@ -284,10 +292,14 @@ namespace Fujisan
                                 bcount++;
                                 frontier.Enqueue(b);
                             }
-                            else
-                            {
-                                //Console.WriteLine("WOAH!");
-                            }
+                            //else if (found.Contains(b))
+                            //{
+                            //    Console.WriteLine("found before!");
+                            //}
+                            //else if (frontier.Contains(b))
+                            //{
+                            //    Console.WriteLine("in frontier!");
+                            //}
                         }
                     }
 
