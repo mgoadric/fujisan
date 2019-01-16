@@ -176,7 +176,7 @@ namespace Fujisan
         public static void BoxOnMain()
         {
             int TRIALS = 1;
-            int EXP = 1;
+            int EXP = 10;
 
             // Choose here the setup algorithm you wish to use
             BoxOnSetup setup = BoxOnSetup.TILES;
@@ -262,8 +262,8 @@ namespace Fujisan
                             {
                                 // Yay! Record statistics
                                 solved = true;
-                                //Console.WriteLine("SOLUTION!!!!");
-                                //Console.WriteLine(b.Path());
+                                Console.WriteLine("SOLUTION!!!!");
+                                Console.WriteLine(b.Path());
 
                                 frontier.Clear();
                                 lock (random)

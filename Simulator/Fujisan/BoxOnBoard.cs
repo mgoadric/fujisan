@@ -151,7 +151,7 @@ namespace Fujisan
          */
         public bool Solved()
         {
-            return length == totalMoves;
+            return length == totalMoves - 1;
         }
 
         /********
@@ -207,28 +207,29 @@ namespace Fujisan
             {
                 for (int j = 0; j < width; j++)
                 {
-                    int k = i;
-                    for (int m = j + 1; m < width; m++)
+                    if (values[i, j] != 0)
                     {
-                        // When a pawn is found
-                        if ((i != k || j != m) && values[i, j] != 0 && 
-                            values[i, j] == values[k, m] &&
-                            Clear(i, j, k, m))
-                        {
-                            AddChild(i, j, k, m, children);
-                        }
-                    }
-
-                    for (k = i + 1; k < height; k++)
-                    {
-                        for (int m = 0; m < width; m++)
+                        int k = i;
+                        for (int m = j + 1; m < width; m++)
                         {
                             // When a pawn is found
-                            if ((i != k || j != m) && values[i,j] != 0 &&
-                                values[i, j] == values[k, m] &&
+                            if (values[i, j] == values[k, m] &&
                                 Clear(i, j, k, m))
                             {
                                 AddChild(i, j, k, m, children);
+                            }
+                        }
+
+                        for (k = i + 1; k < height; k++)
+                        {
+                            for (int m = 0; m < width; m++)
+                            {
+                                // When a pawn is found
+                                if (values[i, j] == values[k, m] &&
+                                    Clear(i, j, k, m))
+                                {
+                                    AddChild(i, j, k, m, children);
+                                }
                             }
                         }
                     }
